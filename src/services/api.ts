@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082/api/v1';
 
 export class ApiError extends Error {
     public status: number;
@@ -43,23 +43,59 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export const apiClient = {
     async get<T>(endpoint: string): Promise<T> {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-        });
-        return handleResponse<T>(response);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+            });
+            return handleResponse<T>(response);
+        } catch (error) {
+            // Handle network errors (connection refused, timeout, etc.)
+            if (error instanceof TypeError) {
+                // Network errors typically throw TypeError with messages like:
+                // "Failed to fetch", "NetworkError", "ERR_CONNECTION_REFUSED", etc.
+                const errorMessage = error.message.toLowerCase();
+                if (errorMessage.includes('fetch') || 
+                    errorMessage.includes('network') || 
+                    errorMessage.includes('connection') ||
+                    errorMessage.includes('failed')) {
+                    throw new ApiError(0, { 
+                        message: 'Unable to connect to the server. Please ensure the backend API is running on port 8082.' 
+                    }, 'Network Error');
+                }
+            }
+            throw error;
+        }
     },
 
     async post<T>(endpoint: string, data: unknown): Promise<T> {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
-        return handleResponse<T>(response);
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            return handleResponse<T>(response);
+        } catch (error) {
+            // Handle network errors (connection refused, timeout, etc.)
+            if (error instanceof TypeError) {
+                // Network errors typically throw TypeError with messages like:
+                // "Failed to fetch", "NetworkError", "ERR_CONNECTION_REFUSED", etc.
+                const errorMessage = error.message.toLowerCase();
+                if (errorMessage.includes('fetch') || 
+                    errorMessage.includes('network') || 
+                    errorMessage.includes('connection') ||
+                    errorMessage.includes('failed')) {
+                    throw new ApiError(0, { 
+                        message: 'Unable to connect to the server. Please ensure the backend API is running on port 8082.' 
+                    }, 'Network Error');
+                }
+            }
+            throw error;
+        }
     },
 };
