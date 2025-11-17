@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactStars from "react-stars";
 import { feedbackService } from "../../services/feedbackService";
 import { validateFeedbackRequest } from "../../utils/validation";
 import type { FeedbackRequest, FieldError, ApiError } from "../../types/feedback";
@@ -31,8 +32,8 @@ export function SubmitFeedback() {
       setSubmitError(null);
     }
 
-    const handleRatingChange = (rating: number) => {
-      setFormData((prev: FeedbackRequest) => ({ ...prev, rating}));
+    const handleRatingChange = (newRating: number) => {
+      setFormData((prev: FeedbackRequest) => ({ ...prev, rating: newRating }));
       setErrors(prev => prev.filter(err => err.field !== 'rating'));
       setSubmitError(null);
     };
@@ -152,26 +153,25 @@ export function SubmitFeedback() {
           </div>
           {/* Rating */}
           <div>
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="rating" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Rating <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-4 flex-wrap">
-              {[1, 2, 3, 4, 5].map(num => (
-                <button
-                  key={num}
-                  type="button"
-                  onClick={() => handleRatingChange(num)}
-                  disabled={isSubmitting}
-                  className={`px-4 py-2 border-2 rounded-lg transition-all font-medium ${
-                    formData.rating === num
-                      ? 'bg-primary-600 text-white border-primary-600 shadow-md'
-                      : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-primary-500 hover:shadow-sm'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  aria-pressed={formData.rating === num}
-                >
-                  {num} ⭐
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              <ReactStars
+                count={5}
+                value={formData.rating}
+                onChange={handleRatingChange}
+                size={40}
+                color2={'#fbbf24'} // gold/yellow for filled stars
+                color1={'#d1d5db'} // gray for empty stars
+                half={false}
+                edit={!isSubmitting}
+              />
+              {formData.rating > 0 && (
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  ({formData.rating} {formData.rating === 1 ? 'star' : 'stars'})
+                </span>
+              )}
             </div>
             {getFieldError('rating') && (
               <p className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
