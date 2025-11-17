@@ -51,13 +51,18 @@ export function SubmitFeedback() {
   
       setIsSubmitting(true);
       try {
-        const response = await feedbackService.submitFeedback(formData);
+        await feedbackService.submitFeedback(formData);
         // Success - navigate to MyFeedback with the memberId
         navigate(`/my-feedback?memberId=${encodeURIComponent(formData.memberId)}`);
       } catch (error) {
         if (error instanceof ApiErrorClass) {
           const apiError = error as ApiError;
-          if (apiError.data && 'errors' in apiError.data && Array.isArray(apiError.data.errors)) {
+          if (apiError.status === 0) {
+            // Network error (connection refused, etc.)
+            setSubmitError(apiError.data && typeof apiError.data === 'object' && 'message' in apiError.data 
+              ? String(apiError.data.message) 
+              : 'Unable to connect to the server. Please ensure the backend API is running on port 8082.');
+          } else if (apiError.data && 'errors' in apiError.data && Array.isArray(apiError.data.errors)) {
             // Server validation errors
             setErrors(apiError.data.errors);
           } else {
