@@ -1,14 +1,6 @@
 import ReactStars from 'react-stars';
 import { formatDate } from '../../utils/dateUtils';
-
-export interface FeedbackCardProps {
-  id: string;
-  memberId: string;
-  providerName: string;
-  rating: number;
-  comment: string | null;
-  submittedAt: string; // ISO string from backend
-}
+import type { FeedbackResponse } from '../../types/feedback';
 
 export function FeedbackCard({
   memberId,
@@ -16,7 +8,7 @@ export function FeedbackCard({
   rating,
   comment,
   submittedAt,
-}: FeedbackCardProps) {
+}: FeedbackResponse) {
   const submittedDate = formatDate(submittedAt);
 
   return (
