@@ -44,12 +44,15 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export const apiClient = {
     async get<T>(endpoint: string): Promise<T> {
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const url = `${API_BASE_URL}${endpoint}`;
+            console.log('API GET request:', url);
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                   'Content-Type': 'application/json',
                 },
             });
+            console.log('API response status:', response.status, response.statusText);
             return handleResponse<T>(response);
         } catch (error) {
             // Handle network errors (connection refused, timeout, etc.)

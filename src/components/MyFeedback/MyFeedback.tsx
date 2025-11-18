@@ -1,16 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FeedbackCard } from './FeedbackCard';
 import { feedbackService } from '../../services/feedbackService';
 import type { FeedbackResponse } from '../../types/feedback';
+import { ApiError } from '../../services/api';
 
 type SearchMode = 'memberId' | 'feedbackId';
 
 export function MyFeedback() {
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState<SearchMode>('memberId');
   const [results, setResults] = useState<FeedbackResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-load feedback from URL query parameter on mount
+  const handleAutoSearch = useCallback(async (memberId: string) => {
+    const trimmed = memberId.trim();
+    if (!trimmed) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log('Fetching feedback for memberId:', trimmed);
+      const data = await feedbackService.getFeedbackByMemberId(trimmed);
+      console.log('Received feedback data:', data);
+      setResults(data);
+      if (data.length === 0) {
+        setError('No feedback found for this member ID.');
+      }
+    } catch (err) {
+      console.error('Failed to fetch feedback', err);
+      
+      // Better error handling
+      if (err instanceof ApiError) {
+        console.error('API Error details:', {
+          status: err.status,
+          data: err.data,
+          message: err.message
+        });
+        
+        if (err.status === 404) {
+          setError('Feedback endpoint not found. Please check if the API is running on port 8082.');
+        } else if (err.status === 0) {
+          setError('Unable to connect to the server. Please ensure the backend API is running on port 8082.');
+        } else {
+          setError(`Error loading feedback (${err.status}). Please try again.`);
+        }
+      } else {
+        setError('Could not load feedback. Please check your ID and try again.');
+      }
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const memberIdFromUrl = searchParams.get('memberId');
+    if (memberIdFromUrl) {
+      setQuery(memberIdFromUrl);
+      setMode('memberId');
+      // Trigger search automatically
+      handleAutoSearch(memberIdFromUrl);
+    }
+  }, [searchParams, handleAutoSearch]);
 
   async function handleSearch(event: React.FormEvent) {
     event.preventDefault();
@@ -30,17 +86,41 @@ export function MyFeedback() {
 
       if (mode === 'memberId') {
         // GET /feedback?memberId={memberId}
+        console.log('Searching by memberId:', trimmed);
         data = await feedbackService.getFeedbackByMemberId(trimmed);
+        console.log('Search results:', data);
       } else {
         // GET /feedback/{id}
+        console.log('Searching by feedbackId:', trimmed);
         const item = await feedbackService.getFeedbackById(trimmed);
         data = [item]; // wrap single result so we can map over it
+        console.log('Search result:', data);
       }
 
       setResults(data);
+      if (data.length === 0) {
+        setError('No feedback found. Please check your search criteria.');
+      }
     } catch (err) {
       console.error('Failed to fetch feedback', err);
-      setError('Could not load feedback. Please check your ID and try again.');
+      
+      if (err instanceof ApiError) {
+        console.error('API Error details:', {
+          status: err.status,
+          data: err.data,
+          message: err.message
+        });
+        
+        if (err.status === 404) {
+          setError('Feedback not found or endpoint unavailable. Please check if the API is running.');
+        } else if (err.status === 0) {
+          setError('Unable to connect to the server. Please ensure the backend API is running on port 8082.');
+        } else {
+          setError(`Error loading feedback (${err.status}). Please try again.`);
+        }
+      } else {
+        setError('Could not load feedback. Please check your ID and try again.');
+      }
       setResults([]);
     } finally {
       setLoading(false);

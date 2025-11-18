@@ -23,7 +23,9 @@ class FeedbackService implements IFeedbackService {
     async getFeedbackByMemberId(memberId: string): Promise<FeedbackResponse[]> {
         // GET /api/v1/feedback?memberId={memberId}
         // Returns 200 OK with array of FeedbackResponse
-        return apiClient.get<FeedbackResponse[]>(`/feedback?memberId=${memberId}`);
+        // Properly encode the memberId to handle special characters
+        const encodedMemberId = encodeURIComponent(memberId);
+        return apiClient.get<FeedbackResponse[]>(`/feedback?memberId=${encodedMemberId}`);
     }
 }
 
