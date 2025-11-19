@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Navigation() {
   const navigate = useNavigate()
@@ -10,12 +10,12 @@ export function Navigation() {
               Feedback Portal
             </div>
             <div className="flex space-x-4">
-              <button onClick={() => navigate("/submit")} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Link to="/submit" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-400 dark:text-gray-300">
                 Submit Feedback
-              </button>
-              <button onClick={() => navigate("/my-feedback")} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              </Link>
+              <Link to="/my-feedback" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-400 dark:text-gray-300">
                 My Feedback
-              </button>
+              </Link>
             </div>
           </div>
         </div>
