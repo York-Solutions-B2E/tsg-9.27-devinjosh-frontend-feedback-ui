@@ -1,7 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import {Link} from "react-router"
 
 export function Navigation() {
-  const navigate = useNavigate()
     return (
       <nav className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
