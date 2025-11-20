@@ -40,8 +40,8 @@ export function MyFeedback() {
 
       setResults(data);
     } catch (err) { // Custom ErrorResponse Handler
-      console.error("Failed to fetch feedback", err);
       if (err instanceof ApiError){
+        console.error("Failed to fetch feedback", err.data ?? err);
         if (err.status === 0){
           setError("Cannot reach server. Make sure Feedback-api is running on port 8082");
         }else if (err.status === 404){
