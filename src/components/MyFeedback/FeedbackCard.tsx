@@ -47,7 +47,7 @@ export function FeedbackCard({
 
       {/* Comment */}
       {comment && (
-        <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
+        <p className="mt-4 text-sm text-gray-700 dark:text-gray-300 whitespace-normal break-words">
           {comment}
         </p>
       )}
