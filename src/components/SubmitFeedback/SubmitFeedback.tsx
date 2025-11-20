@@ -5,8 +5,6 @@ import { feedbackService } from "../../services/feedbackService";
 import { validateFeedbackRequest } from "../../utils/validation";
 import type { FeedbackRequest, FieldError, ApiError } from "../../types/feedback";
 import { ApiError as ApiErrorClass } from '../../services/api';
-// import { ErrorDisplay } from '../shared/ErrorDisplay';
-// import { LoadingSpinner } from '../shared/LoadingSpinner;
 
 
 export function SubmitFeedback() {
@@ -82,12 +80,10 @@ export function SubmitFeedback() {
       return errors.find(err => err.field === fieldName)?.message;
     };
 
-    // Show loading spinner if submitting
     if (isSubmitting) {
       return (
         <div className="max-w-2xl mx-auto px-4 py-8">
           <div className="text-center py-8">Submitting feedback...</div>
-          {/* <LoadingSpinner size="lg" text="Submitting feedback..."/> */}
         </div>
       );
     }
@@ -230,12 +226,7 @@ export function SubmitFeedback() {
               </div>
             </div>
           )}
-          {/*
-          {submitError && (
-            <ErrorDisplay message={submitError} onDismiss={() => setSubmitError(null)} />
-          )}
-          */} 
-          
+
           {/* Form Actions */}
           <div className="flex gap-4 pt-4">
             <button
