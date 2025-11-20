@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FeedbackCard } from './FeedbackCard';
 import { feedbackService } from '../../services/feedbackService';
 import type { FeedbackResponse } from '../../types/feedback';
+import { ApiError } from '../../services/api';
 
 type SearchMode = 'memberId' | 'feedbackId';
 
@@ -38,9 +39,19 @@ export function MyFeedback() {
       }
 
       setResults(data);
-    } catch (err) {
-      console.error('Failed to fetch feedback', err);
-      setError('Could not load feedback. Please check your ID and try again.');
+    } catch (err) { // Custom ErrorResponse Handler
+      console.error("Failed to fetch feedback", err);
+      if (err instanceof ApiError){
+        if (err.status === 0){
+          setError("Cannot reach server. Make sure Feedback-api is running on port 8082");
+        }else if (err.status === 404){
+          setError("No feedback found with that ID, try again");
+        }else {
+          setError("Unknown error, please try again later.");
+        }
+      }else {
+          setError("Could not load feedback. Please check your ID and try again.");
+      }
       setResults([]);
     } finally {
       setLoading(false);
